@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from "react";
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable prettier/prettier */
+/* eslint-disable react-hooks/exhaustive-deps */
+
+import React, { useState, useEffect, useRef } from "react";
 import {
-  StyleSheet,
   View,
   Text,
   TouchableOpacity,
@@ -48,7 +51,6 @@ interface CountDownTimerProps {
    * - `default`: {color: #FAB913 '#000'}
    */
   separatorStyle?: TextStyle;
-
   /**
    * Size of the countdown component
    * - `default`: 15
@@ -59,7 +61,7 @@ interface CountDownTimerProps {
    * Number of seconds to countdown
    * - `default`: 0
    */
-  until?: number;
+  until: number;
 
   /**
    * What function should be invoked when the time is 0
@@ -106,17 +108,27 @@ interface CountDownTimerProps {
 
 const CountdownTimer = (props: CountDownTimerProps) => {
   const [until, useUntil] = useState(Math.max(props.until!, 0) as number);
-  const [lastUntil, useLastUntil] = useState(null as number | null);
+  const [lastUntil, useLastUntil] = useState(0);
   const [wentBackgroundAt, useWentBackgroundAt] = useState(
     null as number | null
   );
+  const intervalId = useRef(0);
+
   useEffect(() => {
-    const timer = setInterval(updateTimer, 1000);
+    //const timer = setInterval(updateTimer, 1000);
+    // const timer = setInterval(() => {
+    //   updateTimer();
+    // }, 1000);
+    intervalId.current = setInterval(() => {
+      //useUntil(timer => timer - 1);
+      updateTimer();
+    }, 1000);
     AppState.addEventListener("change", _handleAppStateChange);
 
     return () => {
-      clearInterval(timer);
-      useLastUntil(until), useUntil(Math.max(props.until!, 0));
+      clearInterval(intervalId.current);
+      //useLastUntil(until);
+      //useUntil(Math.max(props.until!, 0));
       AppState.removeEventListener("change", _handleAppStateChange);
     };
   }, [until, props.id]);
@@ -142,31 +154,31 @@ const CountdownTimer = (props: CountDownTimerProps) => {
   };
 
   const updateTimer = () => {
-    // Don't fetch these values here, because their value might be changed
-    // in another thread
-    // const {lastUntil, until} = state;
-
+    // if (lastUntil === until || !props.running) {
+    //   console.log('update timer', until);
+    //   useUntil(timer => timer - 1);
+    // }
     if (lastUntil === until || !props.running) {
+      if (until === 0) {
+        useLastUntil(0);
+        useUntil(0);
+        clearInterval(intervalId.current);
+      } else {
+        if (props.onChange) {
+          props.onChange(until);
+        }
+        useLastUntil(until);
+        useUntil(timer => timer - 1);
+      }
+      if (until === 1 || (until === 0 && lastUntil !== 1)) {
+        if (props.onFinish) {
+          props.onFinish();
+        }
+        if (props.onChange) {
+          props.onChange(until);
+        }
+      }
       return;
-    }
-    if (until === 1 || (until === 0 && lastUntil !== 1)) {
-      if (props.onFinish) {
-        props.onFinish();
-      }
-      if (props.onChange) {
-        props.onChange(until);
-      }
-    }
-
-    if (until === 0) {
-      useLastUntil(0);
-      useUntil(0);
-    } else {
-      if (props.onChange) {
-        props.onChange(until);
-      }
-      useLastUntil(until);
-      useUntil(Math.max(0, until - 1));
     }
   };
 
@@ -229,6 +241,7 @@ const CountdownTimer = (props: CountDownTimerProps) => {
   const renderCountDown = () => {
     const { timeToShow, timeLabels, showSeparator } = props;
     const { days, hours, minutes, seconds } = getTimeLeft();
+    console.log("time", timeToShow, timeLabels);
     const newTime = sprintf(
       "%02d:%02d:%02d:%02d",
       days,
@@ -268,7 +281,12 @@ const CountdownTimer = (props: CountDownTimerProps) => {
     );
   };
 
-  return <View style={props.style}>{renderCountDown()}</View>;
+  return (
+    <View style={props.style}>
+      {renderCountDown()}
+      <Text>AAAA</Text>
+    </View>
+  );
 };
 
 export default CountdownTimer;

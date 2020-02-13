@@ -1,7 +1,7 @@
 {
   "name": "@sudiddo/react-native-countdown-timer",
   "title": "React Native Countdown Timer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "TODO",
   "main": "index.js",
   "scripts": {
@@ -36,6 +36,7 @@
     "@types/react": "^16.9.19",
     "@types/react-native": "^0.61.12",
     "@types/react-test-renderer": "^16.9.2",
+    "@types/lodash": "",
     "@types/sprintf-js": "^1.1.2",
     "sprintf-js": "^1.1.2",
     "typescript": "^3.7.5"
